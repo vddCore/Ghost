@@ -27,6 +27,7 @@ namespace Ghost.Xenus
         private Dispatcher Dispatcher { get; set; }
         private Timer KeepAliveTimer { get; set; }
 
+        public bool IsConnectionOpen => WebSocket.IsOpen;
         public bool IsCurrentlyChatting => CurrentChat != null;
 
         public ConnectionData ConnectionData { get; }
@@ -108,7 +109,7 @@ namespace Ghost.Xenus
             EnsureChatActive();
 
             var chatEndInfo = new ChatEndInfo(CurrentChat.Key);
-            var distalkPacket = new EventPacket("_distalk", chatEndInfo);
+            var distalkPacket = new EventPacket("_distalk", chatEndInfo, ClientEventID);
 
             await SendEventPacket(distalkPacket);
         }
