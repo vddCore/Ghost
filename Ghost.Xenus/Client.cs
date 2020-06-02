@@ -44,6 +44,7 @@ namespace Ghost.Xenus
         public event EventHandler<ChatEventArgs> ChatEnded;
         public event EventHandler<TypingStateEventArgs> TypingStateChanged;
         public event EventHandler<ChatMessageEventArgs> ChatMessageReceived;
+        public event EventHandler<ChatMessageEventArgs> ChatMessageSent;
         public event EventHandler<ServiceMessageEventArgs> ServiceMessageReceived;
         public event EventHandler<TopicEventArgs> TopicReceived;
 
@@ -79,6 +80,8 @@ namespace Ghost.Xenus
             var pmsgPacket = new EventPacket("_pmsg", message, ClientEventID);
 
             await SendEventPacket(pmsgPacket);
+
+            OnChatMessageSent(message);
         }
 
         public async Task RequestRandomTopic()
@@ -247,6 +250,9 @@ namespace Ghost.Xenus
 
         internal void OnChatMessageReceived(ChatMessage message)
             => ChatMessageReceived?.Invoke(this, new ChatMessageEventArgs(message));
+        
+        internal void OnChatMessageSent(ChatMessage message)
+            => ChatMessageSent?.Invoke(this, new ChatMessageEventArgs(message));
 
         internal void OnServiceMessageReceived(string serviceMessage)
             => ServiceMessageReceived?.Invoke(this, new ServiceMessageEventArgs(serviceMessage));

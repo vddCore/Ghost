@@ -1,8 +1,6 @@
-﻿using System.Collections.ObjectModel;
-using DevExpress.Mvvm;
+﻿using DevExpress.Mvvm;
 using DevExpress.Mvvm.DataAnnotations;
 using Ghost.Model.Messaging;
-using Ghost.Xenus;
 
 namespace Ghost.ViewModel.Windows
 {
