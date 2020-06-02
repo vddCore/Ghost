@@ -117,7 +117,10 @@ namespace Ghost.Xenus
         public async Task StartNewChat()
         {
             if (IsCurrentlyChatting)
+            {
                 await EndChat();
+                await Task.Delay(2500);
+            }
 
             var chatPreferences = new ChatPreferences();
             var sasPacket = new EventPacket("_sas", chatPreferences, ClientEventID);
@@ -235,8 +238,8 @@ namespace Ghost.Xenus
                 return;
             }
 
-            ChatEnded?.Invoke(this, new ChatEventArgs(ChatState.Ended, CurrentChat));
             SetUpChatEndState();
+            ChatEnded?.Invoke(this, new ChatEventArgs(ChatState.Ended, CurrentChat));
         }
 
         internal void OnTypingStateChanged(bool isTyping)

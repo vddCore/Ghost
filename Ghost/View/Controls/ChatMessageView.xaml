@@ -1,0 +1,40 @@
+﻿<UserControl x:Class="Ghost.View.Controls.ChatMessageView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:local="clr-namespace:Ghost.View.Controls">
+    <Grid HorizontalAlignment="Stretch"
+          VerticalAlignment="Stretch"
+          Background="{DXBinding '@a($UserControl).Background'}">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+        </Grid.RowDefinitions>
+
+        <TextBlock Grid.Row="0"
+                   Margin="8,2,0,0"
+                   HorizontalAlignment="Left"
+                   VerticalAlignment="Top"
+                   FontFamily="Segoe UI"
+                   FontSize="14"
+                   Foreground="White"
+                   Text="{DXBinding '@a($UserControl).Sender'}" />
+
+        <TextBlock Grid.Row="0"
+                   Margin="0,4,8,0"
+                   HorizontalAlignment="Right"
+                   FontFamily="Segoe UI"
+                   FontSize="12"
+                   Foreground="White"
+                   Opacity="0.8"
+                   Text="{DXBinding '@a($UserControl).CreatedAt'}" />
+
+        <TextBlock Grid.Row="1"
+                   Margin="8,2,5,5"
+                   HorizontalAlignment="Stretch"
+                   VerticalAlignment="Stretch"
+                   FontFamily="Segoe UI"
+                   Foreground="White"
+                   Text="{DXBinding '@a($UserControl).Body'}"
+                   TextWrapping="Wrap" />
+    </Grid>
+</UserControl>
