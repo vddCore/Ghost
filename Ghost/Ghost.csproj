@@ -25,4 +25,8 @@
       <ProjectReference Include="..\Ghost.Xenus\Ghost.Xenus.csproj" />
     </ItemGroup>
 
+    <ItemGroup>
+      <Folder Include="Converters\" />
+    </ItemGroup>
+
 </Project>

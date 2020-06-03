@@ -5,8 +5,14 @@
              xmlns:b="clr-namespace:Ghost.Behaviors"
              xmlns:dxmvvm="http://schemas.devexpress.com/winfx/2008/xaml/mvvm"
              xmlns:local="clr-namespace:Ghost.View.Controls"
+             xmlns:templateselectors="clr-namespace:Ghost.TemplateSelectors"
              xmlns:vm="clr-namespace:Ghost.ViewModel.Controls"
              DataContext="{dxmvvm:ViewModelSource vm:ChatViewModel}">
+    <UserControl.Resources>
+        <templateselectors:ChatItemTemplateSelector x:Key="ChatItemTemplateSelector" />
+        <BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter" />
+    </UserControl.Resources>
+
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="*" />
@@ -14,15 +20,23 @@
             <RowDefinition Height="88" />
         </Grid.RowDefinitions>
 
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="*" />
+        </Grid.ColumnDefinitions>
+
         <ScrollViewer Grid.Row="0"
+                      Grid.ColumnSpan="2"
                       b:AutoScrollBehavior.AutoScroll="True"
-                      HorizontalScrollBarVisibility="Auto"
+                      HorizontalScrollBarVisibility="Hidden"
                       VerticalScrollBarVisibility="Auto">
-            <ItemsControl ItemsSource="{Binding Messages}"
+            <ItemsControl Padding="0,0,0,5"
+                          ItemTemplateSelector="{StaticResource ChatItemTemplateSelector}"
+                          ItemsSource="{Binding ChatItems}"
                           Visibility="Visible">
-                <ItemsControl.ItemTemplate>
-                    <DataTemplate>
+                <ItemsControl.Resources>
+                    <DataTemplate x:Key="MessageItemTemplate">
                         <local:ChatMessageView x:Name="MessageView"
+                                               MaxWidth="{Binding ViewportWidth, RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type ScrollViewer}}}"
                                                Margin="20,5,5,0"
                                                Background="#004A88"
                                                Body="{Binding Body}"
@@ -37,10 +51,18 @@
                             </DataTrigger>
                         </DataTemplate.Triggers>
                     </DataTemplate>
-                </ItemsControl.ItemTemplate>
+
+                    <DataTemplate x:Key="NotificationItemTemplate">
+                        <TextBlock Padding="2"
+                                   Foreground="#666"
+                                   Text="{Binding Body}"
+                                   TextAlignment="Center" />
+                    </DataTemplate>
+                </ItemsControl.Resources>
+
                 <ItemsControl.ItemsPanel>
                     <ItemsPanelTemplate>
-                        <StackPanel IsItemsHost="True" />
+                        <VirtualizingStackPanel IsItemsHost="True" />
                     </ItemsPanelTemplate>
                 </ItemsControl.ItemsPanel>
             </ItemsControl>
@@ -51,7 +73,23 @@
                       VerticalAlignment="Stretch"
                       Background="#444" />
 
-        <atlasc:TextBox Grid.Row="2"
+        <Grid Grid.Row="2"
+              Margin="2"
+              Panel.ZIndex="10"
+              Background="Black"
+              Opacity="0.6"
+              Visibility="{Binding KillChatArmed, Converter={StaticResource BooleanToVisibilityConverter}}">
+            <TextBlock HorizontalAlignment="Center"
+                       VerticalAlignment="Center"
+                       FontSize="24"
+                       FontWeight="SemiBold"
+                       Foreground="White"
+                       Opacity="0.6"
+                       Text="Are you sure? Hit it again." />
+        </Grid>
+
+        <atlasc:TextBox Name="MessageTextBox"
+                        Grid.Row="2"
                         Margin="2"
                         Padding="2,2,0,0"
                         HorizontalAlignment="Stretch"
@@ -59,6 +97,7 @@
                         HorizontalContentAlignment="Left"
                         VerticalContentAlignment="Top"
                         AcceptsReturn="False"
+                        Focusable="True"
                         IsEnabled="{Binding IsCurrentlyChatting}"
                         Placeholder="Type a message..."
                         PlaceholderPadding="4,2,0,0"
@@ -66,6 +105,11 @@
                         Text="{Binding MessageContent, UpdateSourceTrigger=PropertyChanged}"
                         TextWrapping="Wrap"
                         VerticalPlaceholderAlignment="Top">
+            <dxmvvm:Interaction.Behaviors>
+                <dxmvvm:EventToCommand Command="{Binding MessageTextBoxEnabledCommand}"
+                                       CommandParameter="{Binding ElementName=MessageTextBox}"
+                                       EventName="IsEnabledChanged" />
+            </dxmvvm:Interaction.Behaviors>
             <atlasc:TextBox.InputBindings>
                 <KeyBinding Key="Return"
                             Command="{Binding SendMessageCommand}" />
