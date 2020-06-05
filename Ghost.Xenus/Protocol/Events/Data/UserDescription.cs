@@ -8,6 +8,6 @@ namespace Ghost.Xenus.Protocol.Events.Data
         public int Sex { get; internal set; }
 
         [JsonProperty("loc")]
-        public int Location { get; internal set; }
+        public Location Location { get; internal set; }
     }
 }

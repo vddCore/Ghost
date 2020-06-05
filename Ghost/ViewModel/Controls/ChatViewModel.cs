@@ -47,7 +47,7 @@ namespace Ghost.ViewModel.Controls
 
         public ChatViewModel()
         {
-            Messenger.Default.Register<EndOrStartNewChatMessage>(this, async (msg) => await EndOrStartNewChat());
+            Messenger.Default.Register<EndOrStartNewChatMessage>(this, async (msg) => await EndOrStartNewChat(msg.Location));
             Messenger.Default.Register<ActiveUserCountMessage>(this, (msg) => ActiveUserCount = msg.CurrentCount);
             Messenger.Default.Register<ChatStatusMessage>(this, (msg) => CurrentChatStatus = msg.Status);
 
@@ -126,7 +126,7 @@ namespace Ghost.ViewModel.Controls
             }
         }
 
-        private async Task EndOrStartNewChat()
+        private async Task EndOrStartNewChat(Location location)
         {
             if (IsCurrentlyChatting)
             {
@@ -146,7 +146,7 @@ namespace Ghost.ViewModel.Controls
             else if (!Client.IsSearchingForChat)
             {
                 Messenger.Default.Send(new ChatStatusMessage("looking for a chat..."));
-                await Client.StartNewChat();
+                await Client.StartNewChat(location);
             }
 
             RaisePropertyChanged(nameof(EndChatButtonHint));
