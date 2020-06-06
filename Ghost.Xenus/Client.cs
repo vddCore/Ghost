@@ -208,9 +208,7 @@ namespace Ghost.Xenus
         }
 
         private void WebSocket_Opened(object sender, EventArgs e)
-        {
-            Console.WriteLine("Websocket has been opened.");
-        }
+            => SocketOpened?.Invoke(this, EventArgs.Empty);
 
         private void WebSocket_DataReceived(object sender, WebSocketDataEventArgs e)
         {
@@ -234,7 +232,10 @@ namespace Ghost.Xenus
             => OnRawPacketSent(e.Data);
 
         private void WebSocket_Closed(object sender, EventArgs e)
-            => SetUpDisconnectedState();
+        {
+            SetUpDisconnectedState();
+            SocketClosed?.Invoke(this, EventArgs.Empty);
+        }
 
         internal void OnConnectionAccepted(ConnectionInfo connectionInfo)
             => ConnectionAccepted?.Invoke(this, new ConnectionEventArgs(connectionInfo));
@@ -258,12 +259,12 @@ namespace Ghost.Xenus
 
         internal void OnChatEnded(ulong chatId)
         {
-            var chat = ActiveChats.FirstOrDefault(chat => chat.ID == chatId);
+            var whichChat = ActiveChats.FirstOrDefault(chat => chat.ID == chatId);
 
-            if (chat != null)
+            if (whichChat != null)
             {
-                ActiveChats.Remove(chat);
-                ChatEnded?.Invoke(this, new ChatEventArgs(ChatState.Ended, chat));
+                ActiveChats.Remove(whichChat);
+                ChatEnded?.Invoke(this, new ChatEventArgs(ChatState.Ended, whichChat));
             }
         }
 
