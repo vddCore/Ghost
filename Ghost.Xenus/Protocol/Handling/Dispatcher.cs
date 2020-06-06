@@ -12,8 +12,11 @@ namespace Ghost.Xenus.Protocol.Handling
 
         public delegate void ServerResponseProcessor(Event ev, Client client);
 
-        public Dispatcher(Client client)
+        public Dispatcher(Client client, Assembly assembly = null)
         {
+            if (assembly != null)
+                AddProcessorsFrom(assembly);
+
             _client = client;
             _processors = new Dictionary<string, List<ServerResponseProcessor>>();
         }
@@ -50,7 +53,7 @@ namespace Ghost.Xenus.Protocol.Handling
                     if (method.IsStatic)
                     {
                         var attr = method.GetCustomAttribute<ServerEventHandlerAttribute>();
-                        
+
                         if (attr != null)
                             RegisterResponseProcessor(attr.EventName, (ServerResponseProcessor)method.CreateDelegate(typeof(ServerResponseProcessor)));
                     }

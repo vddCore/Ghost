@@ -8,12 +8,11 @@ namespace Ghost.Xenus.WebSockets
 {
     public class EventWebSocket
     {
-        private byte[] _dataBuffer;
+        private readonly byte[] _dataBuffer;
 
-        private Uri _uri;
-        private ClientWebSocket _underlyingWebSocket;
+        private readonly Uri _uri;
+        private readonly ClientWebSocket _underlyingWebSocket;
 
-        public int DataBufferSize { get; }
         public bool IsOpen => _underlyingWebSocket.State == WebSocketState.Open;
 
         public event EventHandler<WebSocketDataEventArgs> DataReceived;
@@ -21,7 +20,7 @@ namespace Ghost.Xenus.WebSockets
         public event EventHandler Opened;
         public event EventHandler Closed;
 
-        public EventWebSocket(Uri uri, int dataBufferSize = 16384, string origin = null)
+        public EventWebSocket(Uri uri, int dataBufferSize = 8192, string origin = null, string userAgent = null)
         {
             _uri = uri;
             _underlyingWebSocket = new ClientWebSocket();
@@ -29,8 +28,19 @@ namespace Ghost.Xenus.WebSockets
             if (!string.IsNullOrEmpty(origin))
                 _underlyingWebSocket.Options.SetRequestHeader("Origin", origin);
 
-            DataBufferSize = dataBufferSize;
-            _dataBuffer = new byte[DataBufferSize];
+            if (string.IsNullOrEmpty(userAgent))
+            {
+                _underlyingWebSocket.Options.SetRequestHeader(
+                    "User-Agent",
+                    "Mozilla/5.0 " +
+                      "(Linux; Android 6.0.1; SM-G930F Build/MMB29M) " +
+                      "AppleWebKit/537.36 (KHTML, like Gecko) " +
+                      "Chrome/64.0.3282.137 Mobile Safari/537.36"
+                );
+            }
+            else _underlyingWebSocket.Options.SetRequestHeader("User-Agent", userAgent);
+
+            _dataBuffer = new byte[dataBufferSize];
         }
 
         public async Task Open()
@@ -44,8 +54,8 @@ namespace Ghost.Xenus.WebSockets
         public async Task Close()
         {
             await _underlyingWebSocket.CloseAsync(
-                WebSocketCloseStatus.NormalClosure, 
-                "Closed gracefully.", 
+                WebSocketCloseStatus.NormalClosure,
+                "Closed gracefully.",
                 CancellationToken.None
             );
 
