@@ -8,7 +8,7 @@ namespace Ghost.Console
     {
         static async Task Main(string[] args)
         {
-            var client = new Client();
+            var client = new Client(false);
             client.ChatStarted += Client_ChatStarted;
             client.RawPacketReceived += Client_RawPacketReceived;
             client.RawPacketSent += Client_RawPacketSent;
