@@ -14,16 +14,11 @@ namespace Ghost.Glow
                 return;
             }
 
-            if (!File.Exists(args[0]))
-            {
-                Console.WriteLine("fukc: giev crorcet fiel ok?");
-                return;
-            }
-
             var fileName = args[0];
 
             if (args[0].StartsWith("http://") || args[0].StartsWith("https://"))
             {
+                Console.WriteLine("htpp? ok. gon dolwnod fiel.");
                 try
                 {
                     fileName = "./6obcy.js";
@@ -36,6 +31,12 @@ namespace Ghost.Glow
                     Console.WriteLine("fukc: fiel dlownad falied");
                     return;
                 }
+            }
+            
+            if (!File.Exists(args[0]))
+            {
+                Console.WriteLine("fukc: giev crorcet fiel ok?");
+                return;
             }
 
             var src = new ObcySourceFile(fileName);
