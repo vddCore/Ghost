@@ -146,11 +146,12 @@ namespace Ghost.ViewModel.Controls
         {
             RaisePropertyChanged(nameof(IsCurrentlyChatting));
 
-            var location = (Location)int.Parse(e.ChatInfo.Key.Split(":")[0]);
+            // var location = (Location)int.Parse(e.ChatInfo.Key.Split(":")[0]);
 
             Application.Current.Dispatcher.Invoke(() =>
             {
-                ChatItems.Add(new Notification($"chat started (stranger is probably looking for people in {location})"));
+                //  (stranger is probably looking for people in {location})
+                ChatItems.Add(new Notification("chat started"));
             });
             Messenger.Default.Send((new ChatStatusMessage("connected to stranger")));
         }

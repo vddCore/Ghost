@@ -25,6 +25,9 @@ namespace Ghost.Xenus.Protocol.Events.Data
         [JsonProperty("adf")]
         public string AdvertisementFormat { get; internal set; } = "ajaxPHP";
 
+        [JsonProperty("inv", NullValueHandling = NullValueHandling.Ignore)]
+        public string InviterInfo { get; internal set; } = null;
+
         [JsonProperty("hash")]
         public string Hash { get; internal set; }
 
