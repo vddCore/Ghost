@@ -69,7 +69,7 @@ namespace Ghost.Glow
         public string DeobfuscateSource()
         {
             Console.WriteLine("Gonna do the thing I guess.");
-            
+
             var lookup = BuildLookupIndex("_sz8x");
             var source = Source;
             var replacement = new StringBuilder();
@@ -78,11 +78,11 @@ namespace Ghost.Glow
             for (var i = 0; i < lookup.Count; i++)
             {
                 var token = lookup[i];
-                
+
                 replacement.Append(token.DelimiterChar);
                 replacement.Append(token.DecryptedValue);
                 replacement.Append(token.DelimiterChar);
-                
+
                 source = source.Replace($"_sz8x[{i}]", replacement.ToString());
 
                 replacement.Clear();
@@ -129,7 +129,7 @@ namespace Ghost.Glow
                         continue;
 
                     case '\\':
-                        switch (raw[i])
+                        switch (raw[++i])
                         {
                             case 'u':
                                 i++;
@@ -139,11 +139,12 @@ namespace Ghost.Glow
 
                                 i += 4;
                                 continue;
-                            
+
                             case '\\':
-                                currentString += '\\';
+                                if (isInString)
+                                    currentString += "\\\\";
                                 continue;
-                            
+
                             default:
                                 currentString += raw[i];
                                 continue;
@@ -151,7 +152,10 @@ namespace Ghost.Glow
 
                     default:
                         if (isInString)
+                        {
                             currentString += c;
+                        }
+
                         break;
                 }
             }
