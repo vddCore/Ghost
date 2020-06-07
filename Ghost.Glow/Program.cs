@@ -1,6 +1,7 @@
 ﻿using System;
 using System.IO;
 using System.Net;
+using Ghost.Glow.Jsbeautifier;
 
 namespace Ghost.Glow
 {
@@ -39,14 +40,23 @@ namespace Ghost.Glow
                 return;
             }
 
-            var src = new ObcySourceFile(fileName);
+            Console.WriteLine("gon ask bro for hepl ok?");
 
+            Console.WriteLine("---");
+            var src = new ObcySourceFile(fileName);
+            var deobf = src.Deobfuscate();
+            Console.WriteLine("---");
+            
+            Console.WriteLine("thank bro! will prietifey.");
+            var beautifier = new Beautifier();
+
+            var actuallyReadableCode = beautifier.Beautify(deobf);
             File.WriteAllText(
                 Path.GetFileNameWithoutExtension(src.FileName) + ".deobf.js",
-                src.Deobfuscate()
+                actuallyReadableCode
             );
 
-            Console.WriteLine("Done.");
+            Console.WriteLine("im outta here.");
         }
     }
 }
