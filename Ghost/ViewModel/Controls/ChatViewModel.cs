@@ -34,7 +34,8 @@ namespace Ghost.ViewModel.Controls
 
         public ChatViewModel()
         {
-            Messenger.Default.Register<EndOrStartNewChatMessage>(this, async (msg) => await EndOrStartNewChat(msg.Location));
+            Messenger.Default.Register<EndOrStartNewChatMessage>(this,
+                async (msg) => await EndOrStartNewChat(msg.Location));
             Messenger.Default.Register<ActiveUserCountMessage>(this, (msg) => ActiveUserCount = msg.CurrentCount);
             Messenger.Default.Register<ChatStatusMessage>(this, (msg) => CurrentChatStatus = msg.Status);
 
@@ -44,8 +45,9 @@ namespace Ghost.ViewModel.Controls
             PropertyChanged += ChatViewModel_PropertyChanged;
 
             Client = new Client(false);
-            Client.ActiveUserCountChanged += ClientOnActiveUserCountChanged;
+            Client.ActiveUserCountChanged += Client_ActiveUserCountChanged;
             Client.ChatMessageReceived += Client_ChatMessageReceived;
+            Client.TopicReceived += Client_TopicReceived;
             Client.ChatMessageSent += Client_ChatMessageSent;
             Client.TypingStateChanged += Client_TypingStateChanged;
             Client.ChatStarted += Client_ChatStarted;
@@ -59,7 +61,8 @@ namespace Ghost.ViewModel.Controls
 #pragma warning restore CS4014
         }
 
-        private async void ChatViewModel_PropertyChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)
+        private async void ChatViewModel_PropertyChanged(object sender,
+            System.ComponentModel.PropertyChangedEventArgs e)
         {
             if (e.PropertyName == nameof(MessageContent))
             {
@@ -77,21 +80,6 @@ namespace Ghost.ViewModel.Controls
                 }
             }
         }
-
-        private void Client_TypingStateChanged(object sender, TypingStateEventArgs e)
-        {
-            if (e.IsTyping)
-            {
-                Messenger.Default.Send(new ChatStatusMessage("stranger is typing"));
-            }
-            else
-            {
-                Messenger.Default.Send(new ChatStatusMessage("stranger is idle"));
-            }
-        }
-
-        private void ClientOnActiveUserCountChanged(object sender, UserCountEventArgs e)
-            => Messenger.Default.Send(new ActiveUserCountMessage(e.Count));
 
         [AsyncCommand]
         public async Task SendMessage()
@@ -142,14 +130,31 @@ namespace Ghost.ViewModel.Controls
             _killChatTimer.Stop();
         }
 
+        private void Client_TypingStateChanged(object sender, TypingStateEventArgs e)
+        {
+            if (e.IsTyping)
+            {
+                Messenger.Default.Send(new ChatStatusMessage("stranger is typing"));
+            }
+            else
+            {
+                Messenger.Default.Send(new ChatStatusMessage("stranger is idle"));
+            }
+        }
+
         private void Client_ChatStarted(object sender, ChatEventArgs e)
         {
             RaisePropertyChanged(nameof(IsCurrentlyChatting));
 
-            Application.Current.Dispatcher.Invoke(() => { ChatItems.Add(new Notification("chat started")); });
+            var location = (Location)int.Parse(e.ChatInfo.Key.Split(":")[0]);
+
+            Application.Current.Dispatcher.Invoke(() =>
+            {
+                ChatItems.Add(new Notification($"chat started (stranger is probably looking for people in {location})"));
+            });
             Messenger.Default.Send((new ChatStatusMessage("connected to stranger")));
         }
-
+        
         private void Client_ChatEnded(object sender, ChatEventArgs e)
         {
             RaisePropertyChanged(nameof(IsCurrentlyChatting));
@@ -159,12 +164,12 @@ namespace Ghost.ViewModel.Controls
             Application.Current.Dispatcher.Invoke(() => { ChatItems.Add(new Notification("chat ended")); });
             Messenger.Default.Send(new ChatStatusMessage("idle"));
         }
-
-        private void Client_RawPacketSent(object sender, RawDataEventArgs e)
-            => Console.WriteLine($" <- {e.RawPacket}");
-
-        private void Client_RawPacketReceived(object sender, RawDataEventArgs e)
-            => Console.WriteLine($" -> {e.RawPacket}");
+        
+        private void Client_TopicReceived(object sender, TopicEventArgs e)
+        {
+            Application.Current.Dispatcher.Invoke(() =>
+                ChatItems.Add(new Notification($"conversation topic\n{e.Topic.Body}")));
+        }
 
         private void Client_ChatMessageReceived(object sender, ChatMessageEventArgs e)
         {
@@ -178,5 +183,14 @@ namespace Ghost.ViewModel.Controls
             await Client.SendTypingState(false);
             Application.Current.Dispatcher.Invoke(() => ChatItems.Add(new Message(e.Message.Body, true)));
         }
+
+        private void Client_ActiveUserCountChanged(object sender, UserCountEventArgs e)
+            => Messenger.Default.Send(new ActiveUserCountMessage(e.Count));
+
+        private void Client_RawPacketSent(object sender, RawDataEventArgs e)
+            => Console.WriteLine($" <- {e.RawPacket}");
+
+        private void Client_RawPacketReceived(object sender, RawDataEventArgs e)
+            => Console.WriteLine($" -> {e.RawPacket}");
     }
 }
