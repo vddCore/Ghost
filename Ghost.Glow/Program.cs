@@ -33,7 +33,7 @@ namespace Ghost.Glow
                 }
             }
             
-            if (!File.Exists(args[0]))
+            if (!File.Exists(fileName))
             {
                 Console.WriteLine("fukc: giev crorcet fiel ok?");
                 return;
@@ -47,7 +47,6 @@ namespace Ghost.Glow
             );
 
             Console.WriteLine("Done.");
-            Console.ReadLine();
         }
     }
 }
