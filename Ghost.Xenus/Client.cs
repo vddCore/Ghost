@@ -82,6 +82,9 @@ namespace Ghost.Xenus
             WebSocket.Opened += WebSocket_Opened;
         }
 
+        public async Task SendJson(string json)
+            => await WebSocket.SendMessage(json);
+
         public async Task SendMessage(string messageBody, ChatInfo chat = null)
         {
             EnsureChatActive();

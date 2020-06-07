@@ -18,30 +18,9 @@ namespace Ghost.Console
 
             while (true)
             {
+                Terminal.Write("> ");
                 var input = Terminal.ReadLine();
-
-                switch (input)
-                {
-                    case "_sas":
-                        await client.StartNewChat();
-                        break;
-
-                    case "_pmsg":
-                        await client.SendMessage("Ohai! Jak się masz? :D");
-                        break;
-
-                    case "_mtyp:0":
-                        await client.SendTypingState(false);
-                        break;
-
-                    case "_mtyp:1":
-                        await client.SendTypingState(true);
-                        break;
-
-                    case "_distalk":
-                        await client.EndChat();
-                        break;
-                }
+                await client.SendJson(input);
             }
         }
 
@@ -52,6 +31,9 @@ namespace Ghost.Console
 
         private static void Client_RawPacketReceived(object sender, RawDataEventArgs e)
         {
+            if (e.RawPacket.Contains("count"))
+                return;
+            
             Terminal.WriteLine($" -> {e.RawPacket}");
         }
 
