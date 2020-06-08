@@ -84,7 +84,7 @@ namespace Ghost.Glow
                 replacement.Append(token.DecryptedValue);
                 replacement.Append(token.DelimiterChar);
 
-                source = source.Replace($"_sz8x[{i}]", replacement.ToString());
+                source = source.Replace($"{lookupName}[{i}]", replacement.ToString());
 
                 replacement.Clear();
             }
