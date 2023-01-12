@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
-using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
 
@@ -17,7 +16,7 @@ namespace Ghost.Glow
         {
             FileName = fileName;
         }
-
+        
         public string DecryptEncodedString(string str)
         {
             var sb = new StringBuilder();
@@ -66,11 +65,11 @@ namespace Ghost.Glow
             return new List<StringToken>();
         }
 
-        public string DeobfuscateSource()
+        public string Deobfuscate(string lookupName = "_sz8x")
         {
             Console.WriteLine("Gonna do the thing I guess.");
 
-            var lookup = BuildLookupIndex("_sz8x");
+            var lookup = BuildLookupIndex(lookupName);
             var source = Source;
             var replacement = new StringBuilder();
 
