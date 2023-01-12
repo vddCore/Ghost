@@ -7,21 +7,26 @@ namespace Ghost.Glow
     {
         static void Main(string[] args)
         {
-            var src = new ObcySourceFile("H:\\scriptbox.js");
-
-            using (var sw = new StreamWriter(Path.GetFileNameWithoutExtension(src.FileName) + ".deobf.js"))
+            if (args.Length < 1)
             {
-                sw.WriteLine(src.DeobfuscateSources(out var lookup));
-
-                using (var sw2 = new StreamWriter(Path.GetFileNameWithoutExtension(src.FileName) + ".lookup.txt"))
-                {
-                    foreach(var s in lookup)
-                    {
-                        sw2.WriteLine(s);
-                    }
-                }
+                Console.WriteLine("fukc: giev fiel");
+                return;
             }
 
+            if (!File.Exists(args[0]))
+            {
+                Console.WriteLine("fukc: giev crorcet fiel ok?");
+                return;
+            }
+
+            var src = new ObcySourceFile(args[0]);
+
+            File.WriteAllText(
+                Path.GetFileNameWithoutExtension(src.FileName) + ".deobf.js", 
+                src.DeobfuscateSource()
+            );
+            
+            Console.WriteLine("Done.");
             Console.ReadLine();
         }
     }
