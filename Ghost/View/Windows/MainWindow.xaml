@@ -1,0 +1,27 @@
+﻿<atlasw:Window x:Class="Ghost.View.Windows.MainWindow"
+               xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+               xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+               xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+               xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+               xmlns:atlasw="clr-namespace:Atlas.UI.Windows;assembly=Atlas.UI"
+               xmlns:atlasc="clr-namespace:Atlas.UI.Controls;assembly=Atlas.UI"
+               xmlns:dxmvvm="http://schemas.devexpress.com/winfx/2008/xaml/mvvm"
+               xmlns:vm="clr-namespace:Ghost.ViewModel.Windows"
+               DataContext="{dxmvvm:ViewModelSource vm:MainWindowViewModel}"
+               mc:Ignorable="d"
+               Title="MainWindow" Height="450" Width="800">
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="2*" />
+            <RowDefinition Height="*" />
+        </Grid.RowDefinitions>
+
+        <atlasc:ListView Grid.Row="0"
+                         ItemsSource="{Binding LogItems}" />
+
+        <atlasc:TextBox Grid.Row="1"
+                        AcceptsReturn="True"
+                        HorizontalAlignment="Stretch"
+                        VerticalAlignment="Stretch" />
+    </Grid>
+</atlasw:Window>

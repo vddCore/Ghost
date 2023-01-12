@@ -1,0 +1,37 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.30011.22
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Ghost", "Ghost\Ghost.csproj", "{197C048A-0133-40F6-A4DF-6C66DC1EBCFA}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Ghost.Xenus", "Ghost.Xenus\Ghost.Xenus.csproj", "{39807AC7-3CC3-4051-ADCC-548F1F3A985F}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Ghost.Console", "Ghost.Console\Ghost.Console.csproj", "{E8B5BCF5-3542-47BD-A884-6E2A70C0B460}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{197C048A-0133-40F6-A4DF-6C66DC1EBCFA}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{197C048A-0133-40F6-A4DF-6C66DC1EBCFA}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{197C048A-0133-40F6-A4DF-6C66DC1EBCFA}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{197C048A-0133-40F6-A4DF-6C66DC1EBCFA}.Release|Any CPU.Build.0 = Release|Any CPU
+		{39807AC7-3CC3-4051-ADCC-548F1F3A985F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{39807AC7-3CC3-4051-ADCC-548F1F3A985F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{39807AC7-3CC3-4051-ADCC-548F1F3A985F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{39807AC7-3CC3-4051-ADCC-548F1F3A985F}.Release|Any CPU.Build.0 = Release|Any CPU
+		{E8B5BCF5-3542-47BD-A884-6E2A70C0B460}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{E8B5BCF5-3542-47BD-A884-6E2A70C0B460}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{E8B5BCF5-3542-47BD-A884-6E2A70C0B460}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{E8B5BCF5-3542-47BD-A884-6E2A70C0B460}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {B27EA233-A5F1-4E75-AD51-45652C7F2107}
+	EndGlobalSection
+EndGlobal
