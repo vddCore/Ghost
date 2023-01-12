@@ -290,7 +290,7 @@ namespace Ghost.Glow.Jsbeautifier
                 Output.Add(PreindentString);
             }
 
-            foreach (var i in Enumerable.Range(0, Flags.IndentationLevel + Flags.ChainExtraIndentation))
+            foreach (var _ in Enumerable.Range(0, Flags.IndentationLevel + Flags.ChainExtraIndentation))
             {
                 AppendIndentString();
             }
@@ -322,9 +322,9 @@ namespace Ghost.Glow.Jsbeautifier
 
                 // make sure only single space gets drawn
                 if (Output.Count != 0 &&
-                    Output[Output.Count - 1] != " " &&
-                    Output[Output.Count - 1] != "\n" &&
-                    Output[Output.Count - 1] != IndentString)
+                    Output[^1] != " " &&
+                    Output[^1] != "\n" &&
+                    Output[^1] != IndentString)
                 {
                     Output.Add(" ");
                 }
@@ -344,8 +344,8 @@ namespace Ghost.Glow.Jsbeautifier
         private void RemoveIndent()
         {
             if (Output.Count != 0 &&
-                (Output[Output.Count - 1] == IndentString ||
-                 Output[Output.Count - 1] == PreindentString))
+                (Output[^1] == IndentString ||
+                 Output[^1] == PreindentString))
             {
                 Output.RemoveAt(Output.Count - 1);
             }
@@ -358,7 +358,7 @@ namespace Ghost.Glow.Jsbeautifier
             if (FlagStore.Count > 0)
             {
                 var mode = Flags.Mode;
-                Flags = FlagStore[FlagStore.Count - 1];
+                Flags = FlagStore[^1];
                 FlagStore.RemoveAt(FlagStore.Count - 1);
                 Flags.PreviousMode = mode;
             }
@@ -711,11 +711,10 @@ namespace Ghost.Glow.Jsbeautifier
 
             if (c == '#')
             {
-                var resultString = "";
                 // she-bang
                 if (Output.Count == 0 && Input.Length > 1 && Input[ParserPos] == '!')
                 {
-                    resultString = c.ToString();
+                    string resultString = c.ToString();
                     while (ParserPos < Input.Length && c != '\n')
                     {
                         c = Input[ParserPos];
