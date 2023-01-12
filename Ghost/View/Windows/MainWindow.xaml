@@ -9,18 +9,17 @@
                Title="Ghost"
                Width="800"
                Height="450"
-               BorderBrush="HotPink"
                CanMaximize="True"
                CanResize="True"
                CanShade="True"
                DataContext="{dxmvvm:ViewModelSource windows:MainWindowViewModel}"
-               GlowEffectBrush="HotPink"
                ShowCaptionBorder="True"
                UseGlowEffect="True">
     <atlasw:Window.InputBindings>
         <KeyBinding Key="Esc"
                     Command="{Binding EndOrStartNewChatCommand}" />
     </atlasw:Window.InputBindings>
+
     <atlasw:Window.CaptionMenu>
         <atlasc:MenuItem Header="Ghost">
             <atlasc:MenuItem Command="{Binding ForceStartNewChatCommand}"

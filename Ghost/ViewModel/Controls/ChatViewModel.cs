@@ -18,6 +18,9 @@ namespace Ghost.ViewModel.Controls
     {
         private readonly Timer _killChatTimer;
 
+        public string CurrentChatStatus { get; set; } = "idle";
+        public int ActiveUserCount { get; set; }
+
         public Client Client { get; }
         public bool KillChatArmed { get; private set; }
 
@@ -35,6 +38,7 @@ namespace Ghost.ViewModel.Controls
             }
         }
 
+        public bool WasMessageEmpty { get; set; } = true;
         public string MessageContent { get; set; }
 
         public bool IsCurrentlyChatting => Client.IsCurrentlyChatting;
@@ -43,14 +47,21 @@ namespace Ghost.ViewModel.Controls
 
         public ChatViewModel()
         {
-            RegisterMessageHandlers();
+            Messenger.Default.Register<EndOrStartNewChatMessage>(this, async (msg) => await EndOrStartNewChat());
+            Messenger.Default.Register<ActiveUserCountMessage>(this, (msg) => ActiveUserCount = msg.CurrentCount);
+            Messenger.Default.Register<ChatStatusMessage>(this, (msg) => CurrentChatStatus = msg.Status);
 
             _killChatTimer = new Timer(850);
             _killChatTimer.Elapsed += KillChatTimer_Elapsed;
 
+            PropertyChanged += ChatViewModel_PropertyChanged;
+
+
             Client = new Client();
+            Client.ActiveUserCountChanged += ClientOnActiveUserCountChanged;
             Client.ChatMessageReceived += Client_ChatMessageReceived;
             Client.ChatMessageSent += Client_ChatMessageSent;
+            Client.TypingStateChanged += Client_TypingStateChanged;
             Client.ChatStarted += Client_ChatStarted;
             Client.ChatEnded += Client_ChatEnded;
             Client.RawPacketReceived += Client_RawPacketReceived;
@@ -61,6 +72,40 @@ namespace Ghost.ViewModel.Controls
                 Client.Connect();
 #pragma warning restore CS4014
         }
+
+        private async void ChatViewModel_PropertyChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)
+        {
+            if (e.PropertyName == nameof(MessageContent))
+            {
+                if (WasMessageEmpty && MessageContent.Length > 0)
+                {
+                    await Client.SendTypingState(true);
+                    WasMessageEmpty = false;
+                }
+                else if(!WasMessageEmpty && MessageContent.Length == 0)
+                {
+                    if(Client.IsCurrentlyChatting)
+                        await Client.SendTypingState(false);
+
+                    WasMessageEmpty = true;
+                }
+            }
+        }
+
+        private void Client_TypingStateChanged(object sender, TypingStateEventArgs e)
+        {
+            if (e.IsTyping)
+            {
+                Messenger.Default.Send(new ChatStatusMessage("stranger is typing"));
+            }
+            else
+            {
+                Messenger.Default.Send(new ChatStatusMessage("stranger is idle"));
+            }
+        }
+
+        private void ClientOnActiveUserCountChanged(object sender, UserCountEventArgs e)
+            => Messenger.Default.Send(new ActiveUserCountMessage(e.Count));
 
         [AsyncCommand]
         public async Task SendMessage()
@@ -98,20 +143,13 @@ namespace Ghost.ViewModel.Controls
                     _killChatTimer.Start();
                 }
             }
-            else
+            else if (!Client.IsSearchingForChat)
             {
+                Messenger.Default.Send(new ChatStatusMessage("looking for a chat..."));
                 await Client.StartNewChat();
             }
 
             RaisePropertyChanged(nameof(EndChatButtonHint));
-        }
-
-        private void RegisterMessageHandlers()
-        {
-            Messenger.Default.Register<EndOrStartNewChatMessage>(this, async (msg) =>
-            {
-                await EndOrStartNewChat();
-            });
         }
 
         private void KillChatTimer_Elapsed(object sender, ElapsedEventArgs e)
@@ -125,10 +163,8 @@ namespace Ghost.ViewModel.Controls
             RaisePropertyChanged(nameof(IsCurrentlyChatting));
             RaisePropertyChanged(nameof(EndChatButtonHint));
 
-            Application.Current.Dispatcher.Invoke(() =>
-            {
-                ChatItems.Add(new Notification("chat started"));
-            });
+            Application.Current.Dispatcher.Invoke(() => { ChatItems.Add(new Notification("chat started")); });
+            Messenger.Default.Send((new ChatStatusMessage("connected to stranger")));
         }
 
         private void Client_ChatEnded(object sender, ChatEventArgs e)
@@ -138,10 +174,8 @@ namespace Ghost.ViewModel.Controls
 
             MessageContent = string.Empty;
 
-            Application.Current.Dispatcher.Invoke(() =>
-            {
-                ChatItems.Add(new Notification("chat ended"));
-            });
+            Application.Current.Dispatcher.Invoke(() => { ChatItems.Add(new Notification("chat ended")); });
+            Messenger.Default.Send(new ChatStatusMessage("idle"));
         }
 
         private void Client_RawPacketSent(object sender, RawDataEventArgs e)
@@ -152,18 +186,15 @@ namespace Ghost.ViewModel.Controls
 
         private void Client_ChatMessageReceived(object sender, ChatMessageEventArgs e)
         {
-            Application.Current.Dispatcher.Invoke(() =>
-            {
-                ChatItems.Add(new Message(e.Message.Body, false));
-            });
+            Application.Current.Dispatcher.Invoke(() => ChatItems.Add(new Message(e.Message.Body, false)));
+            Messenger.Default.Send(new ChatStatusMessage("stranger is idle"));
         }
 
-        private void Client_ChatMessageSent(object sender, ChatMessageEventArgs e)
+        private async void Client_ChatMessageSent(object sender, ChatMessageEventArgs e)
         {
-            Application.Current.Dispatcher.Invoke(() =>
-            {
-                ChatItems.Add(new Message(e.Message.Body, true));
-            });
+            WasMessageEmpty = true;
+            await Client.SendTypingState(false);
+            Application.Current.Dispatcher.Invoke(() => ChatItems.Add(new Message(e.Message.Body, true)));
         }
     }
 }

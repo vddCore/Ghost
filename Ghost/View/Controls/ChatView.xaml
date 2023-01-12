@@ -62,7 +62,9 @@
 
                 <ItemsControl.ItemsPanel>
                     <ItemsPanelTemplate>
-                        <VirtualizingStackPanel IsItemsHost="True" />
+                        <VirtualizingStackPanel IsItemsHost="True"
+                                                VirtualizingPanel.IsVirtualizing="True"
+                                                VirtualizingPanel.VirtualizationMode="Recycling" />
                     </ItemsPanelTemplate>
                 </ItemsControl.ItemsPanel>
             </ItemsControl>
@@ -74,46 +76,72 @@
                       Background="#444" />
 
         <Grid Grid.Row="2"
-              Margin="2"
-              Panel.ZIndex="10"
-              Background="Black"
-              Opacity="0.6"
-              Visibility="{Binding KillChatArmed, Converter={StaticResource BooleanToVisibilityConverter}}">
-            <TextBlock HorizontalAlignment="Center"
-                       VerticalAlignment="Center"
-                       FontSize="24"
-                       FontWeight="SemiBold"
-                       Foreground="White"
-                       Opacity="0.6"
-                       Text="Are you sure? Hit it again." />
+              VerticalAlignment="Stretch">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="24" />
+                <RowDefinition Height="*" />
+            </Grid.RowDefinitions>
+            <Grid Grid.Row="0">
+                <TextBlock Margin="5,0,0,0"
+                           HorizontalAlignment="Left"
+                           VerticalAlignment="Center"
+                           Foreground="#AAA"
+                           Text="{Binding CurrentChatStatus}"
+                           TextAlignment="Left" />
+
+                <TextBlock Margin="0,0,5,0"
+                           HorizontalAlignment="Right"
+                           VerticalAlignment="Center"
+                           Foreground="#AAA"
+                           TextAlignment="Right">
+                    <Run Text="{Binding ActiveUserCount}" />
+                    <Run Text="users online" />
+                </TextBlock>
+            </Grid>
+
+            <Grid Grid.Row="1"
+                  Margin="2"
+                  Panel.ZIndex="10"
+                  Background="Black"
+                  Opacity="0.6"
+                  Visibility="{Binding KillChatArmed, Converter={StaticResource BooleanToVisibilityConverter}}">
+                <TextBlock HorizontalAlignment="Center"
+                           VerticalAlignment="Center"
+                           FontSize="24"
+                           FontWeight="SemiBold"
+                           Foreground="White"
+                           Opacity="0.6"
+                           Text="Are you sure? Hit it again." />
+            </Grid>
+
+            <atlasc:TextBox Name="MessageTextBox"
+                            Grid.Row="1"
+                            Margin="2"
+                            Padding="2,2,0,0"
+                            HorizontalAlignment="Stretch"
+                            VerticalAlignment="Stretch"
+                            HorizontalContentAlignment="Left"
+                            VerticalContentAlignment="Top"
+                            AcceptsReturn="False"
+                            Focusable="True"
+                            IsEnabled="{Binding IsCurrentlyChatting}"
+                            Placeholder="Type a message..."
+                            PlaceholderPadding="4,2,0,0"
+                            ShowPlaceholder="True"
+                            Text="{Binding MessageContent, UpdateSourceTrigger=PropertyChanged}"
+                            TextWrapping="Wrap"
+                            VerticalPlaceholderAlignment="Top">
+                <dxmvvm:Interaction.Behaviors>
+                    <dxmvvm:EventToCommand Command="{Binding MessageTextBoxEnabledCommand}"
+                                           CommandParameter="{Binding ElementName=MessageTextBox}"
+                                           EventName="IsEnabledChanged" />
+                </dxmvvm:Interaction.Behaviors>
+                <atlasc:TextBox.InputBindings>
+                    <KeyBinding Key="Return"
+                                Command="{Binding SendMessageCommand}" />
+                </atlasc:TextBox.InputBindings>
+            </atlasc:TextBox>
         </Grid>
 
-        <atlasc:TextBox Name="MessageTextBox"
-                        Grid.Row="2"
-                        Margin="2"
-                        Padding="2,2,0,0"
-                        HorizontalAlignment="Stretch"
-                        VerticalAlignment="Stretch"
-                        HorizontalContentAlignment="Left"
-                        VerticalContentAlignment="Top"
-                        AcceptsReturn="False"
-                        Focusable="True"
-                        IsEnabled="{Binding IsCurrentlyChatting}"
-                        Placeholder="Type a message..."
-                        PlaceholderPadding="4,2,0,0"
-                        ShowPlaceholder="True"
-                        Text="{Binding MessageContent, UpdateSourceTrigger=PropertyChanged}"
-                        TextWrapping="Wrap"
-                        VerticalPlaceholderAlignment="Top">
-            <dxmvvm:Interaction.Behaviors>
-                <dxmvvm:EventToCommand Command="{Binding MessageTextBoxEnabledCommand}"
-                                       CommandParameter="{Binding ElementName=MessageTextBox}"
-                                       EventName="IsEnabledChanged" />
-            </dxmvvm:Interaction.Behaviors>
-            <atlasc:TextBox.InputBindings>
-                <KeyBinding Key="Return"
-                            Command="{Binding SendMessageCommand}" />
-            </atlasc:TextBox.InputBindings>
-        </atlasc:TextBox>
     </Grid>
 </UserControl>
