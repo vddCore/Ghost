@@ -1,6 +1,5 @@
 ﻿using DevExpress.Mvvm;
 using DevExpress.Mvvm.DataAnnotations;
-using DevExpress.Mvvm.POCO;
 using Ghost.Model;
 using Ghost.Model.Messaging;
 using Ghost.Xenus;
@@ -8,7 +7,6 @@ using System;
 using System.Collections.ObjectModel;
 using System.Threading.Tasks;
 using System.Windows;
-using System.Windows.Input;
 
 namespace Ghost.ViewModel.Controls
 {
@@ -28,6 +26,7 @@ namespace Ghost.ViewModel.Controls
 
             Client = new Client();
             Client.ChatMessageReceived += Client_ChatMessageReceived;
+            Client.ChatMessageSent += Client_ChatMessageSent;
             Client.ChatStarted += Client_ChatStarted;
             Client.ChatEnded += Client_ChatEnded;
 
@@ -48,16 +47,13 @@ namespace Ghost.ViewModel.Controls
         }
 
         [AsyncCommand]
-        public async Task KeyDown(KeyEventArgs e)
+        public async Task SendMessage()
         {
-            if (e.Key == Key.Enter)
-            {
-                if (!Client.IsConnectionOpen || !Client.IsCurrentlyChatting || string.IsNullOrEmpty(MessageContent))
-                    return;
+            if (!Client.IsConnectionOpen || !Client.IsCurrentlyChatting || string.IsNullOrEmpty(MessageContent))
+                return;
 
-                await Client.SendMessage(MessageContent);
-                MessageContent = string.Empty;
-            }
+            await Client.SendMessage(MessageContent);
+            MessageContent = string.Empty;
         }
 
         private async void StartNewChat(StartNewChatMessage msg)
@@ -74,6 +70,14 @@ namespace Ghost.ViewModel.Controls
             Application.Current.Dispatcher.Invoke(() =>
             {
                 Messages.Add(new Message(e.Message.Body, false));
+            });
+        }
+
+        private void Client_ChatMessageSent(object sender, ChatMessageEventArgs e)
+        {
+            Application.Current.Dispatcher.Invoke(() =>
+            {
+                Messages.Add(new Message(e.Message.Body, true));
             });
         }
     }
