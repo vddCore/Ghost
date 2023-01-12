@@ -85,7 +85,7 @@ namespace Ghost.Xenus
             EnsureChatActive();
 
             var topicRequest = new TopicRequest(CurrentChat.Key);
-            var randtopicPacket = new EventPacket("_randtopic", topicRequest);
+            var randtopicPacket = new EventPacket("_randtopic", topicRequest, ClientEventID);
 
             await SendEventPacket(randtopicPacket);
         }
