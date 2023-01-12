@@ -1,0 +1,74 @@
+﻿<UserControl x:Class="Ghost.View.Controls.ChatView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:atlasc="clr-namespace:Atlas.UI.Controls;assembly=Atlas.UI"
+             xmlns:dxmvvm="http://schemas.devexpress.com/winfx/2008/xaml/mvvm"
+             xmlns:local="clr-namespace:Ghost.View.Controls"
+             xmlns:vm="clr-namespace:Ghost.ViewModel.Controls"
+             DataContext="{dxmvvm:ViewModelSource vm:ChatViewModel}">
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="*" />
+            <RowDefinition Height="2" />
+            <RowDefinition Height="88" />
+        </Grid.RowDefinitions>
+
+        <ScrollViewer Grid.Row="0"
+                      HorizontalScrollBarVisibility="Auto"
+                      VerticalScrollBarVisibility="Auto">
+            <ItemsControl ItemsSource="{Binding Messages}"
+                          Visibility="Visible">
+                <ItemsControl.ItemTemplate>
+                    <DataTemplate>
+                        <local:ChatMessageView x:Name="MessageView"
+                                               Margin="20,5,5,0"
+                                               Background="#004A88"
+                                               Body="{Binding Body}"
+                                               CreatedAt="{Binding CreatedAt}"
+                                               Sender="stranger" />
+                        <DataTemplate.Triggers>
+                            <DataTrigger Binding="{Binding IsOutgoing}"
+                                         Value="True">
+                                <Setter TargetName="MessageView" Property="Sender" Value="you" />
+                                <Setter TargetName="MessageView" Property="Background" Value="#007ACC" />
+                                <Setter TargetName="MessageView" Property="Margin" Value="5,5,20,0" />
+                            </DataTrigger>
+                        </DataTemplate.Triggers>
+                    </DataTemplate>
+                </ItemsControl.ItemTemplate>
+                <ItemsControl.ItemsPanel>
+                    <ItemsPanelTemplate>
+                        <StackPanel IsItemsHost="True" />
+                    </ItemsPanelTemplate>
+                </ItemsControl.ItemsPanel>
+            </ItemsControl>
+        </ScrollViewer>
+
+        <GridSplitter Grid.Row="1"
+                      HorizontalAlignment="Stretch"
+                      VerticalAlignment="Stretch"
+                      Background="#444" />
+
+        <atlasc:TextBox Grid.Row="2"
+                        Margin="2"
+                        Padding="2,2,0,0"
+                        HorizontalAlignment="Stretch"
+                        VerticalAlignment="Stretch"
+                        HorizontalContentAlignment="Left"
+                        VerticalContentAlignment="Top"
+                        AcceptsReturn="True"
+                        IsEnabled="{Binding IsCurrentlyChatting}"
+                        Placeholder="Type a message..."
+                        PlaceholderPadding="4,2,0,0"
+                        ShowPlaceholder="True"
+                        Text="{Binding MessageContent}"
+                        TextWrapping="Wrap"
+                        VerticalPlaceholderAlignment="Top">
+            <dxmvvm:Interaction.Behaviors>
+                <dxmvvm:EventToCommand Command="{Binding KeyDownCommand}"
+                                       EventName="KeyDown"
+                                       PassEventArgsToCommand="True" />
+            </dxmvvm:Interaction.Behaviors>
+        </atlasc:TextBox>
+    </Grid>
+</UserControl>
