@@ -9,17 +9,48 @@
                Title="Ghost"
                Width="800"
                Height="450"
+               BorderBrush="HotPink"
                CanMaximize="True"
                CanResize="True"
                CanShade="True"
                DataContext="{dxmvvm:ViewModelSource windows:MainWindowViewModel}"
-               ShowCaptionBorder="True">
+               GlowEffectBrush="HotPink"
+               ShowCaptionBorder="True"
+               UseGlowEffect="True">
+    <atlasw:Window.InputBindings>
+        <KeyBinding Key="Esc"
+                    Command="{Binding EndOrStartNewChatCommand}" />
+    </atlasw:Window.InputBindings>
     <atlasw:Window.CaptionMenu>
-        <atlasc:MenuItem Header="Ghost" />
-        <atlasc:MenuItem Header="Edit" />
-        <atlasc:MenuItem Header="Help" />
-        <atlasc:MenuItem Command="{Binding StartNewChatCommand}"
-                         Header="Start New Chat" />
+        <atlasc:MenuItem Header="Ghost">
+            <atlasc:MenuItem Command="{Binding ForceStartNewChatCommand}"
+                             Header="Start new chat"
+                             InputGestureText="Esc, Esc" />
+
+            <atlasc:MenuItem Header="Request random topic"
+                             InputGestureText="F2" />
+
+            <atlasc:MenuItem Command="{Binding QuitApplicationCommand}"
+                             Header="Quit"
+                             InputGestureText="Alt+F4" />
+        </atlasc:MenuItem>
+        <atlasc:MenuItem Header="Chat">
+            <atlasc:MenuItem Header="Cut"
+                             InputGestureText="Ctrl+X" />
+            <atlasc:MenuItem Header="Copy"
+                             InputGestureText="Ctrl+C" />
+            <atlasc:MenuItem Header="Paste"
+                             InputGestureText="Ctrl+V" />
+
+            <Separator />
+
+            <atlasc:MenuItem Header="Toggle copymode"
+                             InputGestureText="F3" />
+
+        </atlasc:MenuItem>
+        <atlasc:MenuItem Header="Help">
+            <atlasc:MenuItem Header="Get fucked." />
+        </atlasc:MenuItem>
     </atlasw:Window.CaptionMenu>
 
     <controls:ChatView />

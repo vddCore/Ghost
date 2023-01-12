@@ -29,6 +29,7 @@ namespace Ghost.Xenus
 
         public bool IsConnectionOpen => WebSocket.IsOpen;
         public bool IsCurrentlyChatting => CurrentChat != null;
+        public bool IsSearchingForChat { get; private set; }
 
         public ConnectionData ConnectionData { get; }
         public string SessionID { get; private set; }
@@ -122,8 +123,10 @@ namespace Ghost.Xenus
             if (IsCurrentlyChatting)
             {
                 await EndChat();
-                await Task.Delay(2500);
+                await Task.Delay(150);
             }
+
+            IsSearchingForChat = true;
 
             var chatPreferences = new ChatPreferences();
             var sasPacket = new EventPacket("_sas", chatPreferences, ClientEventID);
@@ -170,6 +173,8 @@ namespace Ghost.Xenus
             ConnectionInfo = null;
             CurrentChat = null;
             SessionID = null;
+            IsSearchingForChat = false;
+
             _clientEventId = 1;
 
             KeepAliveTimer.Stop();
@@ -220,7 +225,9 @@ namespace Ghost.Xenus
 
         internal void OnChatStarted(ChatInfo chatInfo)
         {
+            IsSearchingForChat = false;
             CurrentChat = chatInfo;
+            
             ChatStarted?.Invoke(this, new ChatEventArgs(ChatState.Started, chatInfo));
         }
 
