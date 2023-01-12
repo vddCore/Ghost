@@ -24,20 +24,6 @@ namespace Ghost.ViewModel.Controls
         public Client Client { get; }
         public bool KillChatArmed { get; private set; }
 
-        public string EndChatButtonHint
-        {
-            get
-            {
-                if (KillChatArmed)
-                    return "You sure?\n(Esc)";
-
-                if (IsCurrentlyChatting)
-                    return "End chat\n(Esc)";
-
-                return "New chat\n(Esc)";
-            }
-        }
-
         public bool WasMessageEmpty { get; set; } = true;
         public string MessageContent { get; set; }
 
@@ -148,8 +134,6 @@ namespace Ghost.ViewModel.Controls
                 Messenger.Default.Send(new ChatStatusMessage("looking for a chat..."));
                 await Client.StartNewChat(location);
             }
-
-            RaisePropertyChanged(nameof(EndChatButtonHint));
         }
 
         private void KillChatTimer_Elapsed(object sender, ElapsedEventArgs e)
@@ -161,7 +145,6 @@ namespace Ghost.ViewModel.Controls
         private void Client_ChatStarted(object sender, ChatEventArgs e)
         {
             RaisePropertyChanged(nameof(IsCurrentlyChatting));
-            RaisePropertyChanged(nameof(EndChatButtonHint));
 
             Application.Current.Dispatcher.Invoke(() => { ChatItems.Add(new Notification("chat started")); });
             Messenger.Default.Send((new ChatStatusMessage("connected to stranger")));
@@ -170,7 +153,6 @@ namespace Ghost.ViewModel.Controls
         private void Client_ChatEnded(object sender, ChatEventArgs e)
         {
             RaisePropertyChanged(nameof(IsCurrentlyChatting));
-            RaisePropertyChanged(nameof(EndChatButtonHint));
 
             MessageContent = string.Empty;
 

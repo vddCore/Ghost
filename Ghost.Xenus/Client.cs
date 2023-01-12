@@ -7,6 +7,8 @@ using Ghost.Xenus.WebSockets;
 using Newtonsoft.Json;
 using RestSharp;
 using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
 using System.Timers;
@@ -27,15 +29,19 @@ namespace Ghost.Xenus
         private Dispatcher Dispatcher { get; set; }
         private Timer KeepAliveTimer { get; set; }
 
+        private Stack<bool> SearchRequests { get; }
+
         public bool IsConnectionOpen => WebSocket.IsOpen;
-        public bool IsCurrentlyChatting => CurrentChat != null;
-        public bool IsSearchingForChat { get; private set; }
+
+        public bool IsCurrentlyChatting => ActiveChats.Count > 0;
+        public bool IsSearchingForChat => SearchRequests.Peek();
 
         public ConnectionData ConnectionData { get; }
         public string SessionID { get; private set; }
 
         public ConnectionInfo ConnectionInfo { get; internal set; }
-        public ChatInfo CurrentChat { get; internal set; }
+
+        public List<ChatInfo> ActiveChats { get; internal set; }
 
         public event EventHandler<RawDataEventArgs> RawPacketSent;
         public event EventHandler<RawDataEventArgs> RawPacketReceived;
@@ -48,8 +54,10 @@ namespace Ghost.Xenus
         public event EventHandler<ChatMessageEventArgs> ChatMessageSent;
         public event EventHandler<ServiceMessageEventArgs> ServiceMessageReceived;
         public event EventHandler<TopicEventArgs> TopicReceived;
+        public event EventHandler SocketOpened;
+        public event EventHandler SocketClosed;
 
-        public Client()
+        public Client(bool secure)
         {
             Rest = new RestClient(WebServiceAddress);
             ConnectionData = RequestConnectionData();
@@ -57,8 +65,15 @@ namespace Ghost.Xenus
             Dispatcher = new Dispatcher(this);
             Dispatcher.AddProcessorsFrom(Assembly.GetExecutingAssembly());
 
+            ActiveChats = new List<ChatInfo>();
+
+            SearchRequests = new Stack<bool>();
+            SearchRequests.Push(false);
+
+            var protocol = secure ? "wss://" : "ws://";
+
             WebSocket = new EventWebSocket(
-                new Uri($"ws://{ConnectionData.Host}:{ConnectionData.PortString}/6eio/?EIO=3&transport=websocket"),
+                new Uri($"{protocol}{ConnectionData.Host}:{ConnectionData.PortString}/6eio/?EIO=3&transport=websocket"),
                 origin: WebServiceAddress
             );
 
@@ -68,14 +83,16 @@ namespace Ghost.Xenus
             WebSocket.Opened += WebSocket_Opened;
         }
 
-        public async Task SendMessage(string messageBody)
+        public async Task SendMessage(string messageBody, ChatInfo chat = null)
         {
             EnsureChatActive();
 
+            chat ??= ActiveChats.First();
+
             var message = new ChatMessage(
-                CurrentChat.CurrentMessageID,
+                chat.CurrentMessageID,
                 messageBody,
-                CurrentChat.Key
+                chat.Key
             );
 
             var pmsgPacket = new EventPacket("_pmsg", message, ClientEventID);
@@ -85,22 +102,26 @@ namespace Ghost.Xenus
             OnChatMessageSent(message);
         }
 
-        public async Task RequestRandomTopic()
+        public async Task RequestRandomTopic(ChatInfo chat = null)
         {
             EnsureChatActive();
 
-            var topicRequest = new TopicRequest(CurrentChat.Key);
+            chat ??= ActiveChats.First();
+
+            var topicRequest = new TopicRequest(chat.Key);
             var randtopicPacket = new EventPacket("_randtopic", topicRequest, ClientEventID);
 
             await SendEventPacket(randtopicPacket);
         }
 
-        public async Task SendTypingState(bool typing)
+        public async Task SendTypingState(bool typing, ChatInfo chat = null)
         {
             EnsureChatActive();
 
+            chat ??= ActiveChats.First();
+
             var typingState = new TypingState(
-                CurrentChat.Key,
+                chat.Key,
                 typing
             );
 
@@ -108,11 +129,13 @@ namespace Ghost.Xenus
             await SendEventPacket(mtypPacket);
         }
 
-        public async Task EndChat()
+        public async Task EndChat(ChatInfo chat = null)
         {
             EnsureChatActive();
 
-            var chatEndInfo = new ChatEndInfo(CurrentChat.Key);
+            chat ??= ActiveChats.First();
+
+            var chatEndInfo = new ChatEndInfo(chat.Key);
             var distalkPacket = new EventPacket("_distalk", chatEndInfo, ClientEventID);
 
             await SendEventPacket(distalkPacket);
@@ -120,13 +143,7 @@ namespace Ghost.Xenus
 
         public async Task StartNewChat(Location where = Location.EntirePoland)
         {
-            if (IsCurrentlyChatting)
-            {
-                await EndChat();
-                await Task.Delay(150);
-            }
-
-            IsSearchingForChat = true;
+            SearchRequests.Push(true);
 
             var chatPreferences = new ChatPreferences();
 
@@ -135,7 +152,6 @@ namespace Ghost.Xenus
                     where;
 
             var sasPacket = new EventPacket("_sas", chatPreferences, ClientEventID);
-
             await SendEventPacket(sasPacket);
         }
 
@@ -176,18 +192,15 @@ namespace Ghost.Xenus
         private void SetUpDisconnectedState()
         {
             ConnectionInfo = null;
-            CurrentChat = null;
+            ActiveChats.Clear();
             SessionID = null;
-            IsSearchingForChat = false;
+
+            while (SearchRequests.Count > 1)
+                SearchRequests.Pop();
 
             _clientEventId = 1;
 
             KeepAliveTimer.Stop();
-        }
-
-        private void SetUpChatEndState()
-        {
-            CurrentChat = null;
         }
 
         private void EnsureChatActive()
@@ -230,8 +243,8 @@ namespace Ghost.Xenus
 
         internal void OnChatStarted(ChatInfo chatInfo)
         {
-            IsSearchingForChat = false;
-            CurrentChat = chatInfo;
+            SearchRequests.Pop();
+            ActiveChats.Add(chatInfo);
 
             ChatStarted?.Invoke(this, new ChatEventArgs(ChatState.Started, chatInfo));
         }
@@ -247,14 +260,13 @@ namespace Ghost.Xenus
 
         internal void OnChatEnded(ulong chatId)
         {
-            if (chatId != CurrentChat.ID)
-            {
-                Console.WriteLine("Warning - Ignoring OnChatEnded: Chat ID mismatch.");
-                return;
-            }
+            var chat = ActiveChats.FirstOrDefault(chat => chat.ID == chatId);
 
-            SetUpChatEndState();
-            ChatEnded?.Invoke(this, new ChatEventArgs(ChatState.Ended, CurrentChat));
+            if (chat != null)
+            {
+                ActiveChats.Remove(chat);
+                ChatEnded?.Invoke(this, new ChatEventArgs(ChatState.Ended, chat));
+            }
         }
 
         internal void OnTypingStateChanged(bool isTyping)
