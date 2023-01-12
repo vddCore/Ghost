@@ -71,6 +71,8 @@ namespace Ghost.Glow
 
             var lookup = BuildLookupIndex(lookupName);
             var source = Source;
+            source = source.Replace("1e3", "1000");
+            
             var replacement = new StringBuilder();
 
             Console.WriteLine("Deobfuscating.");
