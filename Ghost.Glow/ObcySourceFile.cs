@@ -11,7 +11,7 @@ namespace Ghost.Glow
     {
         public string FileName { get; }
         public string Source { get; private set; }
-
+        
         public ObcySourceFile(string fileName)
         {
             FileName = fileName;
@@ -65,7 +65,7 @@ namespace Ghost.Glow
             return new List<StringToken>();
         }
 
-        public string Deobfuscate(string lookupName = "_sz8x")
+        public string Deobfuscate(string lookupName = "_sz8x", bool stripLookup = true)
         {
             Console.WriteLine("Gonna do the thing I guess.");
 
@@ -87,7 +87,7 @@ namespace Ghost.Glow
                 replacement.Clear();
             }
 
-            return source;
+            return stripLookup ? source.Substring(source.IndexOf('\n')) : source;
         }
 
         private List<StringToken> ParseStrings(string raw)
