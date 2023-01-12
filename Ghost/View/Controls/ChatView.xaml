@@ -26,9 +26,10 @@
 
         <ScrollViewer Grid.Row="0"
                       Grid.ColumnSpan="2"
+                      Padding="5,0,5,0"
                       b:AutoScrollBehavior.AutoScroll="True"
                       HorizontalScrollBarVisibility="Hidden"
-                      VerticalScrollBarVisibility="Auto">
+                      VerticalScrollBarVisibility="Hidden">
             <ItemsControl Padding="0,0,0,5"
                           ItemTemplateSelector="{StaticResource ChatItemTemplateSelector}"
                           ItemsSource="{Binding ChatItems}"
@@ -37,7 +38,7 @@
                     <DataTemplate x:Key="MessageItemTemplate">
                         <local:ChatMessageView x:Name="MessageView"
                                                MaxWidth="{Binding ViewportWidth, RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type ScrollViewer}}}"
-                                               Margin="20,5,5,0"
+                                               Margin="0,5,0,0"
                                                Background="#004A88"
                                                Body="{Binding Body}"
                                                CreatedAt="{Binding CreatedAt}"
@@ -47,7 +48,7 @@
                                          Value="True">
                                 <Setter TargetName="MessageView" Property="Sender" Value="you" />
                                 <Setter TargetName="MessageView" Property="Background" Value="#007ACC" />
-                                <Setter TargetName="MessageView" Property="Margin" Value="5,5,20,0" />
+                                <Setter TargetName="MessageView" Property="Margin" Value="0,5,0,0" />
                             </DataTrigger>
                         </DataTemplate.Triggers>
                     </DataTemplate>

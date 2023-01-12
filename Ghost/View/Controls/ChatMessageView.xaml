@@ -20,7 +20,7 @@
                    Text="{DXBinding '@a($UserControl).Sender'}" />
 
         <TextBlock Grid.Row="0"
-                   Margin="0,4,8,0"
+                   Margin="0,4,5,0"
                    HorizontalAlignment="Right"
                    FontFamily="Segoe UI"
                    FontSize="12"
@@ -29,7 +29,7 @@
                    Text="{DXBinding '@a($UserControl).CreatedAt'}" />
 
         <TextBlock Grid.Row="1"
-                   Margin="8,2,5,5"
+                   Margin="8,2,8,5"
                    HorizontalAlignment="Stretch"
                    VerticalAlignment="Stretch"
                    FontFamily="Segoe UI"

@@ -73,8 +73,8 @@ namespace Ghost.Xenus
             EnsureChatActive();
 
             var message = new ChatMessage(
-                CurrentChat.CurrentMessageID, 
-                messageBody, 
+                CurrentChat.CurrentMessageID,
+                messageBody,
                 CurrentChat.Key
             );
 
@@ -118,7 +118,7 @@ namespace Ghost.Xenus
             await SendEventPacket(distalkPacket);
         }
 
-        public async Task StartNewChat()
+        public async Task StartNewChat(Location where = Location.EntirePoland)
         {
             if (IsCurrentlyChatting)
             {
@@ -129,6 +129,11 @@ namespace Ghost.Xenus
             IsSearchingForChat = true;
 
             var chatPreferences = new ChatPreferences();
+
+            chatPreferences.Myself.Location =
+                chatPreferences.LookingFor.Location =
+                    where;
+
             var sasPacket = new EventPacket("_sas", chatPreferences, ClientEventID);
 
             await SendEventPacket(sasPacket);
@@ -227,7 +232,7 @@ namespace Ghost.Xenus
         {
             IsSearchingForChat = false;
             CurrentChat = chatInfo;
-            
+
             ChatStarted?.Invoke(this, new ChatEventArgs(ChatState.Started, chatInfo));
         }
 
@@ -257,7 +262,7 @@ namespace Ghost.Xenus
 
         internal void OnChatMessageReceived(ChatMessage message)
             => ChatMessageReceived?.Invoke(this, new ChatMessageEventArgs(message));
-        
+
         internal void OnChatMessageSent(ChatMessage message)
             => ChatMessageSent?.Invoke(this, new ChatMessageEventArgs(message));
 
