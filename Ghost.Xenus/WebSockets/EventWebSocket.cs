@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Diagnostics;
 using System.Net.WebSockets;
 using System.Text;
 using System.Threading;
@@ -15,6 +14,7 @@ namespace Ghost.Xenus.WebSockets
         private ClientWebSocket _underlyingWebSocket;
 
         public int DataBufferSize { get; }
+        public bool IsOpen => _underlyingWebSocket.State == WebSocketState.Open;
 
         public event EventHandler<WebSocketDataEventArgs> DataReceived;
         public event EventHandler<WebSocketDataEventArgs> DataSent;
