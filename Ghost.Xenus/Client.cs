@@ -40,7 +40,6 @@ namespace Ghost.Xenus
         public string SessionID { get; private set; }
 
         public ConnectionInfo ConnectionInfo { get; internal set; }
-
         public List<ChatInfo> ActiveChats { get; internal set; }
 
         public event EventHandler<RawDataEventArgs> RawPacketSent;
@@ -96,7 +95,6 @@ namespace Ghost.Xenus
             );
 
             var pmsgPacket = new EventPacket("_pmsg", message, ClientEventID);
-
             await SendEventPacket(pmsgPacket);
 
             OnChatMessageSent(message);
@@ -109,8 +107,8 @@ namespace Ghost.Xenus
             chat ??= ActiveChats.First();
 
             var topicRequest = new TopicRequest(chat.Key);
-            var randtopicPacket = new EventPacket("_randtopic", topicRequest, ClientEventID);
 
+            var randtopicPacket = new EventPacket("_randtopic", topicRequest, ClientEventID);
             await SendEventPacket(randtopicPacket);
         }
 
@@ -136,8 +134,8 @@ namespace Ghost.Xenus
             chat ??= ActiveChats.First();
 
             var chatEndInfo = new ChatEndInfo(chat.Key);
-            var distalkPacket = new EventPacket("_distalk", chatEndInfo, ClientEventID);
 
+            var distalkPacket = new EventPacket("_distalk", chatEndInfo, ClientEventID);
             await SendEventPacket(distalkPacket);
         }
 

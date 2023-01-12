@@ -12,6 +12,7 @@ namespace Ghost.Xenus.Protocol.Handling
             var connectionInfo = serverEvent.DataAs<ConnectionInfo>();
 
             var cinfo = new ClientInfo { Hash = connectionInfo.Hash };
+
             var cinfoPacket = new EventPacket("_cinfo", cinfo);
             var owackPacket = new EventPacket("_owack", null);
 

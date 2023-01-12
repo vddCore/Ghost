@@ -6,6 +6,7 @@ using Ghost.Model.Messaging;
 using Ghost.Xenus;
 using System;
 using System.Collections.ObjectModel;
+using System.Net.WebSockets;
 using System.Threading.Tasks;
 using System.Timers;
 using System.Windows;
@@ -42,8 +43,7 @@ namespace Ghost.ViewModel.Controls
 
             PropertyChanged += ChatViewModel_PropertyChanged;
 
-
-            Client = new Client();
+            Client = new Client(false);
             Client.ActiveUserCountChanged += ClientOnActiveUserCountChanged;
             Client.ChatMessageReceived += Client_ChatMessageReceived;
             Client.ChatMessageSent += Client_ChatMessageSent;
@@ -68,9 +68,9 @@ namespace Ghost.ViewModel.Controls
                     await Client.SendTypingState(true);
                     WasMessageEmpty = false;
                 }
-                else if(!WasMessageEmpty && MessageContent.Length == 0)
+                else if (!WasMessageEmpty && MessageContent.Length == 0)
                 {
-                    if(Client.IsCurrentlyChatting)
+                    if (Client.IsCurrentlyChatting)
                         await Client.SendTypingState(false);
 
                     WasMessageEmpty = true;
