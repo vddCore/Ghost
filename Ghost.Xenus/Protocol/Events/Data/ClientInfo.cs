@@ -10,7 +10,7 @@ namespace Ghost.Xenus.Protocol.Events.Data
             public int ClientKey { get; internal set; }
 
             [JsonProperty("recevsent")]
-            public bool ReceiveSent { get; internal set; }
+            public bool WasReconnectEventSent { get; internal set; }
         }
 
         [JsonProperty("cvdate")]
