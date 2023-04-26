@@ -53,6 +53,7 @@ namespace Ghost.Xenus
         public event EventHandler<ChatMessageEventArgs> ChatMessageSent;
         public event EventHandler<ServiceMessageEventArgs> ServiceMessageReceived;
         public event EventHandler<TopicEventArgs> TopicReceived;
+        public event EventHandler<CaptchaEventArgs> CaptchaReceived;
         public event EventHandler SocketOpened;
         public event EventHandler SocketClosed;
 
@@ -154,6 +155,13 @@ namespace Ghost.Xenus
 
             var sasPacket = new EventPacket("_sas", chatPreferences, ClientEventID);
             await SendEventPacket(sasPacket);
+        }
+        
+        public async Task<bool> SolveCaptcha(string text)
+        {
+            await SendEventPacket(
+                new EventPacket("_capsol", new CaptchaSolution(text))
+            );
         }
 
         public async Task Connect()
@@ -285,5 +293,8 @@ namespace Ghost.Xenus
 
         internal void OnTopicReceived(Topic topic)
             => TopicReceived?.Invoke(this, new TopicEventArgs(topic));
+
+        internal void OnCaptchaReceived(Captcha captcha)
+            => CaptchaReceived?.Invoke(this, new CaptchaEventArgs(captcha));
     }
 }

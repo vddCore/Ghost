@@ -11,13 +11,14 @@ namespace Ghost.Xenus.Protocol.Handling
         {
             var connectionInfo = serverEvent.DataAs<ConnectionInfo>();
 
-            var cinfo = new ClientInfo { Hash = connectionInfo.Hash };
+            var cinfo = new ClientInfo
+            {
+                Hash = connectionInfo.Hash,
+                RequestCaptcha = true
+            };
 
             var cinfoPacket = new EventPacket("_cinfo", cinfo);
-            var owackPacket = new EventPacket("_owack", null);
-
             await client.SendEventPacket(cinfoPacket);
-            await client.SendEventPacket(owackPacket);
 
             client.OnConnectionAccepted(connectionInfo);
         }
@@ -74,6 +75,18 @@ namespace Ghost.Xenus.Protocol.Handling
         {
             var topic = serverEvent.DataAs<Topic>();
             client.OnTopicReceived(topic);
+        }
+
+        [ServerEventHandler("caprecvsas")]
+        internal static void CaptchaChallenge(Event serverEvent, Client client)
+        {
+            var captcha = serverEvent.DataAs<Captcha>();
+            client.OnCaptchaReceived(captcha);
+        }
+
+        [ServerEventHandler("capissol")]
+        internal static void CaptchaResponse(Event serverEvent, Client client)
+        {
         }
     }
 }

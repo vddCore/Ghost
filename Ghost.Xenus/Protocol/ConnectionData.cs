@@ -12,7 +12,6 @@ namespace Ghost.Xenus.Protocol
         [JsonProperty("port")]
         public string PortString { get; internal set; }
 
-
         [JsonProperty("from")]
         public string Referrer { get; internal set; }
 

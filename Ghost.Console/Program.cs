@@ -15,6 +15,7 @@ namespace Ghost.Console
             client.ChatMessageReceived += Client_ChatMessageReceived;
 
             await client.Connect();
+            await client.StartNewChat();
 
             while (true)
             {
